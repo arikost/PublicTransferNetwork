@@ -3,4 +3,4 @@ project(PublicTransferNetwork)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(PublicTransferNetwork main.cpp)
+add_executable(PublicTransferNetwork main.cpp Transit.h Station.h NeverLand.h)
