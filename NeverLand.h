@@ -12,9 +12,9 @@
 #include "Station.h"
 using namespace std;
 class NeverLand {
-
+public:
     vector<Transit*> lines;
-    vector<Station*> nodes;
+    vector<shared_ptr<Station>> nodes;
     //stopping times is in minot
     // default stopping times for transit
     int tramStoppingTime = 2 ;
@@ -27,33 +27,32 @@ class NeverLand {
     int stadChangeTime = 5;
 
 
-    NeverLand( char** dataFiles, int numOfFiles){
-        ifstream data;
-        for(int i=0; i < numOfFiles; i++){
-            data.open(dataFiles[i]);
-            this->load(data, dataFiles[i]);
-            data.close();
-        }
-    }
     void load(ifstream& data, const char* filename){
         char buff[100];
         char station_type[2];
-        string transit_type;
+        string *transit_type;
         bool foundFlag = true;
-        for(int i=0; i< 10; i++){
-            if(filename[i] == '.'){
-                break;
-            }
-            transit_type.push_back(filename[i]);
+        string filename_str(filename);
+        if( filename_str.find("bus") != string::npos){
+            transit_type = new string("bus");
         }
-        Station* from;
-        Station* to;
+        else if( filename_str.find("tram") != string::npos){
+            transit_type = new string("tram");
+        }
+        else if( filename_str.find("rail") != string::npos){
+            transit_type = new string("rail");
+        }
+        else if( filename_str.find("sprinter") != string::npos){
+            transit_type = new string("sprinter");
+        }
+        weak_ptr<Station>from;
+        weak_ptr<Station>to;
         while(data >> buff){
             station_type[0] = buff[0];
             station_type[1] = buff[1];
 
             for(int i=0; i < nodes.size();i++){
-                if(strcmp(nodes[i]->name, buff)==0){
+                if(strcmp(nodes[i]->name.data(), buff)==0){
                     from = nodes[i];
                     foundFlag = false;
                     break;
@@ -61,26 +60,27 @@ class NeverLand {
             }
             if(foundFlag) {
                 if (strcmp(station_type, "IC") == 0) {
-                    shared_ptr<Station> sharedStation = make_shared<Station>(buff, "intercity");
-                    nodes.push_back(sharedStation.get());
-                    from = sharedStation.get();
+                    shared_ptr<Station> sharedPtr = make_shared<Station>(buff, "intercity");
+                    nodes.push_back(sharedPtr);
+                    from = sharedPtr;
                 }
                 else if (strcmp(station_type, "CS") == 0) {
-                    shared_ptr<Station> sharedStation = make_shared<Station>(buff, "central");
-                    nodes.push_back(sharedStation.get());
-                    from = sharedStation.get();
+                    shared_ptr<Station> sharedPtr = make_shared<Station>(buff, "central");
+                    nodes.push_back(sharedPtr);
+                    from = sharedPtr;
                 } else {
-                    shared_ptr<Station> sharedStation = make_shared<Station>(buff, "stad");
-                    nodes.push_back(sharedStation.get());
-                    from = sharedStation.get();
+                    shared_ptr<Station> sharedPtr = make_shared<Station>(buff, "stad");
+                    nodes.push_back(sharedPtr);
+                    from = sharedPtr;
+                    cout<< from.lock()->name<<endl;
                 }
             }
-            if(data >> buff) { ;
+            if(data >> buff) {
                 station_type[0] = buff[0];
                 station_type[1] = buff[1];
                 int foundStationFlag = 0;
                 for(int i=0; i < nodes.size();i++){
-                    if(strcmp(nodes[i]->name, buff)==0){
+                    if(strcmp(nodes[i]->name.data(), buff)==0){
                         to = nodes[i];
                         foundStationFlag = 1;
                         break;
@@ -88,42 +88,42 @@ class NeverLand {
                 }
                 if(foundStationFlag == 0) {
                     if (strcmp(station_type, "IC") == 0) {
-                        shared_ptr<Station> sharedStation = make_shared<Station>(buff, "intercity");
-                        nodes.push_back(sharedStation.get());
-                        to = sharedStation.get();
+                        shared_ptr<Station> sharedPtr = make_shared<Station>(buff, "intercity");
+                        nodes.push_back(sharedPtr);
+                        to = sharedPtr;
                     }
                     else if (strcmp(station_type, "CS") == 0) {
-                        shared_ptr<Station> sharedStation = make_shared<Station>(buff, "central");
-                        nodes.push_back(sharedStation.get());
-                        to = sharedStation.get();
+                        shared_ptr<Station> sharedPtr = make_shared<Station>(buff, "central");
+                        nodes.push_back(sharedPtr);
+                        to = sharedPtr;
                     } else {
-                        shared_ptr<Station> sharedStation = make_shared<Station>(buff, "stad");
-                        nodes.push_back(sharedStation.get());
-                        to = sharedStation.get();
+                        shared_ptr<Station> sharedPtr = make_shared<Station>(buff, "stad");
+                        nodes.push_back(sharedPtr);
+                        to = sharedPtr;
                     }
                 }
             }else{
-                cerr<< "faild to read"<<endl;
+                cerr<< "failed to read"<<endl;
             }
             if (data >> buff ){
 
                 for(int i=0; i< lines.size(); i++){
-                    if(strcmp(lines[i]->from->name, from->name) == 0 &&
-                        strcmp(lines[i]->to->name,to->name) == 0 &&
-                        strcmp(transit_type.data(), lines[i]->type) == 0){
+                    if(lines[i]->from.lock()->name == from.lock()->name &&
+                        lines[i]->to.lock()->name == to.lock()->name &&
+                        *transit_type == lines[i]->type){
                         lines[i]->set_durTime(stoi(buff));
                     }
                 }
-                lines.push_back(new Transit(from, to, stoi(buff), transit_type.data()));
+                lines.push_back(new Transit(from, to, stoi(buff), *transit_type));
             }else{
-                cerr<< "faild to read"<<endl;
+                cerr<< "failed to read"<<endl;
             }
         }
     }
 
 
-public:
-    NeverLand(char* configfileName, char** dataFiles, int numOfFiles){
+
+    void load_config(char* configfileName){
         ifstream config;
         config.open(configfileName);
         char buff[100];
@@ -157,13 +157,33 @@ public:
                 this->stadChangeTime = stoi(buff);
             }
         }
+
+
+    }
+    void
+
+    NeverLand(char** dataFiles, int numOfFiles){
+
         ifstream data;
-        for(int i=0; i < numOfFiles; i++){
+        bool confFlag = false;
+        for(int i=1; i < numOfFiles; i++){
+            cout << dataFiles[i]<<endl;
+            if( strcmp(dataFiles[i], "-c")==0){
+                confFlag = true;
+                continue;
+            }
+            if( confFlag){
+                this->load_config(dataFiles[i]);
+                confFlag = false;
+                continue;
+            }
             data.open(dataFiles[i]);
+            if(data){
+                cout<<"file opened"<<endl;
+            }
             this->load(data, dataFiles[i]);
             data.close();
         }
-
     }
 };
 

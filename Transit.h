@@ -10,9 +10,9 @@ using namespace std;
 class Transit {
 public:
     int durationTime;
-    Station* from;
-    Station* to;
-    char* type;
+    weak_ptr<Station> from;
+    weak_ptr<Station> to;
+    string type;
 
     void set_durTime(int t){
         if (t < 0){
@@ -24,7 +24,7 @@ public:
     }
 
 
-    Transit(Station* from, Station* to, int dTime, const char* type){
+    Transit(weak_ptr<Station> from, weak_ptr<Station> to, int dTime, string type){
         if (dTime < 0){
             cerr<< "duration time cannot be lower then 0"<<endl;
         }
@@ -32,7 +32,7 @@ public:
         this->from = from;
         this->to = to;
         this->durationTime = dTime;
-        this->type = strdup(type);
+        this->type = type;
     }
 };
 
