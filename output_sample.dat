@@ -1,0 +1,12 @@
+bus: no inbound travel
+tram: NeverpeakMountain	MazeOfRegrets	PixieHollow	NeverlandPlains	CSPiccaninnyMain	Neverseas	PiccaninnyPlains
+sprinter: no inbound travel
+rail: no inbound travel
+bus: no outbound travel
+tram: PiccaninnyPlains	Neverseas	CSPiccaninnyMain	NeverlandPlains	PixieHollow	MazeOfRegrets	NeverpeakMountain
+sprinter: no outbound travel
+rail: no outbound travel
+bus: 36
+tram: route unavailable
+sprinter: route unavailable
+rail: 27

@@ -1,0 +1,52 @@
+from CanibalCove
+tram: PiccaninnyPlains 
+_______________________________________________________
+
+from PiccaninnyPlains
+tram: Neverseas 
+_______________________________________________________
+
+from Neverseas
+tram: CSPiccaninnyMain 
+_______________________________________________________
+
+from CSPiccaninnyMain
+tram: NeverlandPlains 
+_______________________________________________________
+
+from NeverlandPlains
+tram: PixieHollow 
+_______________________________________________________
+
+from PixieHollow
+tram: MazeOfRegrets 
+_______________________________________________________
+
+from MazeOfRegrets
+tram: NeverpeakMountain 
+_______________________________________________________
+
+from NeverpeakMountain
+tram: CanibalCove 
+_______________________________________________________
+
+from LagoonSouth
+bus: LagoonNorth 
+rail: LagoonWest LagoonEast 
+_______________________________________________________
+
+from LagoonNorth
+bus: LagoonSouth 
+rail: LagoonWest LagoonEast 
+_______________________________________________________
+
+from LagoonWest
+sprinter: LagoonEast 
+rail: LagoonSouth LagoonNorth 
+_______________________________________________________
+
+from LagoonEast
+sprinter: LagoonWest 
+rail: LagoonSouth LagoonNorth 
+_______________________________________________________
+
